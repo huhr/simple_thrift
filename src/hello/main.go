@@ -15,7 +15,8 @@ func main() {
 	fmt.Println("sleep a while")
 	client := client.NewClient()
 	go client.Run()
+	// 阻塞主进程
 	for true {
-		time.Sleep(10 * time.Second)
+		time.Sleep(100 * time.Second)
 	}
 }
