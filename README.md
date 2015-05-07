@@ -10,13 +10,15 @@ thrift的使用不仅仅将各种语言黏合在我们的系统中，同时也�
 
 #### 以golang为例，看下thrift的构成和实现    
 
-thrift的通信结构分为了transport层，protocol层，processor层以及server层，而其中
-processor由定义的接口文件生成，其他层面上不同实现的选择也有很大的灵活性。
+thrift的通信结构分为了transport层，protocol层，processor层以及server层，    
+而其中processor由定义的接口文件生成，其他层面上不同实现的选择也有很大的    
+灵活性。
 
 ##### Transport层:
-transport是thrift层次结构中的最底层，Thrift定义了两个transport的接口     
-TTransport和TServerTransport。TTransport定义了基本的读写接口以及Flush, Open, IsOpen, Peek    
-四个接口,TServerTransport定义了Listen, Accept, Close, Interrupt四个函数。   
+transport是thrift层次结构中的最底层，Thrift定义了两个transport的接口       
+TTransport和TServerTransport。TTransport定义了基本的读写接口以及    
+Flush, Open, IsOpen, Peek四个接口,TServerTransport定义了Listen,     
+Accept, Close, Interrupt四个函数。   
 
 StreamTransport:    
 	建立在io.Reader和io.Writer之上的transport，StreamTransport分为只读的，只写的和    
