@@ -14,7 +14,7 @@ thrift的通信结构分为了transport层，protocol层，processor层以及ser
 processor由定义的接口文件生成，其他层面上不同实现的选择也有很大的灵活性。
 
 ##### Transport层:
-transport是thrift层次结构中的最底层，Thrift定义了两个transport的接口
+transport是thrift层次结构中的最底层，Thrift定义了两个transport的接口     
 TTransport和TServerTransport。TTransport定义了基本的读写接口以及Flush, Open, IsOpen, Peek    
 四个接口,TServerTransport定义了Listen, Accept, Close, Interrupt四个函数。   
 
