@@ -153,7 +153,8 @@ NewTSimpleServer4的transport，protocol取决于我们的传入参数，但是�
 工作并不是饱和的。为了解决这个问题，TNonblockingServer出现了，这是一个非阻塞IO的    
 server实现，在这个实现中，workers并没有拿到socket连接进行处理，而是主进程管理所有    
 的连接，通过系统调用select，拿到所有不用等待的连接，放在数组中，分配给workers处理。    
-让workers在请求量大的时候都有活干，而不会把时间浪费在等待某一个连接的IO上。    
+让workers在请求量大的时候都有活干，而不会把时间浪费在等待某一个连接的IO上。   
+
 goroutine是构建在线程之上的概念，是由go自身来进行调度的，这里在实现的时候使用epoll    
 模型，当某一个协程要等待IO的时候，go会调度执行该goroutine的线程去执行其他的goroutine，    
 当IO就绪的时候，再回调激活阻塞的goroutine，调度空闲的线程来执行，这样go server的线程    
