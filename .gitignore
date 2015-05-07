@@ -23,7 +23,7 @@ _testmain.go
 *.test
 
 *.swp
-bin/sos_adserver
+bin/hello
 data/*
 *.data
 logs
