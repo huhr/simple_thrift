@@ -20,6 +20,7 @@ Interrupt四个函数。
 	只读的，只写的和读写的三种。thfit提供了StreamTransportFactory来获取
 	实例。典型的应用是积分墙的数据导出模块以及AdServer的导入协程的实现。
 '''
+
 	func (this *AdImporter) importBonusFromFile(filePath string) (bonus []*data_shared.Bonus, err error) {
 		bonus = make([]*data_shared.Bonus, 0)
 
@@ -39,6 +40,7 @@ Interrupt四个函数。
 		}   
 		return bonus, nil 
 	}
+
 '''
 	BufferedTransport:
 		增加了读写缓存，在进行IO操作时，频繁的进行read/write系统调用会消
