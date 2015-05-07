@@ -131,9 +131,10 @@ NewTSimpleServer4的transport，protocol取决于我们的传入参数，但是�
 我们可能会注意到这个实现，go server在启动以后，是一直监听着端口，每次Accept到    
 了新的连接，就把连接交给一个协程去处理。首先，处理是一个异步的过程，不同连接    
 的处理是没有关联的，这样当请求量非常大的时候，server端可能会有成千上万个协程    
-在工作，幸运的是协程要比线程更加容易驾驭，所以go server可以胜任很大的并发量级。    
-对比py的TProcessPoolServer，其实是由固定数量的线程，处理请求的过程其实是同步的，    
-如果全部的workers都在处理请求中，client发的新的请求就被阻塞住了。    
+在工作，幸运的是协程要比线程还要容易驾驭，所以go server可以胜任很大的并发量级。    
+对比py我们最常用的的TProcessPoolServer，采用进程池的方式实现，每一个进程对应到    
+每一个连接上来处理请求，如果全部的workers都在处理请求中，client发的新的请求就被    
+阻塞住了。    
 
 那么问题来了，为什么goroutine更容易驾驭。    
 
@@ -146,21 +147,28 @@ NewTSimpleServer4的transport，protocol取决于我们的传入参数，但是�
 		except Exception, x:
 			logging.exception(x)
 
-还是先看TProcessPoolServer的实现，每一个worker的工作内容都是一样的，这里进行IO操    
-作时，总会或多或少的遇到等待，IO的速度跟CPU的速度差了很多，例如在read的时候阻塞住    
-了，这时候这个worker就开始等待了那么这个等待的时间里，这个线程其实是闲置的，没有    
-进行任何计算。生产环境中，我看可以pstree看到py的server有很多线程，但其实这些线程    
+还是先看TProcessPoolServer的实现，每一个进程的工作内容都是一样的，这里在进行IO操    
+作时，总会或多或少的碰到阻塞，IO的速度跟CPU的速度差了很多，例如在read的时候阻塞住    
+了，这时候这个进程就只能等待了，那么在这个等待的时间里，这个进程其实是闲置的，没有    
+进行任何计算。生产环境中，我看可以pstree看到py server有很多子进程，但其实这些进程    
 工作并不是饱和的。为了解决这个问题，TNonblockingServer出现了，这是一个非阻塞IO的    
-server实现，在这个实现中，workers并没有拿到socket连接进行处理，而是主进程管理所有    
-的连接，通过系统调用select，拿到所有不用等待的连接，放在数组中，分配给workers处理。    
+server实现，在这个实现中，workers并不是拿着socket连接进行IO操作，而是主进程管理所有    
+的连接，通过系统调用select，获取所有不用等待的连接，放在数组中，分配给workers处理。    
 让workers在请求量大的时候都有活干，而不会把时间浪费在等待某一个连接的IO上。   
+
+使用TProcessPoolServer处理高并发时我们不得不增加workers数量，导致系统在调度进程上    
+产生了很大的开销，很快就会达到性能瓶颈。    
+TNonblockingServer使用多线程实现，可以设置更多的workers并能够更高效的利用CPU，但只    
+由于语言特性，只能使用一个CPU，而且由于夹杂了select及其他调度操作，对于单个请求的处    
+理会时间比TProcessPoolServer长。    
 
 goroutine是构建在线程之上的概念，是由go自身来进行调度的，这里在实现的时候使用epoll    
 模型，当某一个协程要等待IO的时候，go会调度执行该goroutine的线程去执行其他的goroutine，    
 当IO就绪的时候，再回调激活阻塞的goroutine，调度空闲的线程来执行，这样go server的线程    
 总会选择可以执行的goroutine执行，工作就饱和了许多。不管是系统调度还是goroutine的调度，    
-一定是有资源消耗的，只是比操作系统调度线程，进程更加轻量级。    
+一定是有资源消耗的，只是比操作系统调度线程，进程更加轻量级。go能够很好的利用多个CPU，    
+epoll也比select更高效，以及静态语言天生的优势，使得go server非常简单却非常强大。    
 
 #### 总结
-RPC调用的过程其实很复杂，但对于我们来说，要了解的是如何构建server和client，以及在构建过
-程中如何选择的thrift为我们提供的各种模式。
+RPC调用的过程很复杂，但对于我们来说，只需要了解如何构造server和client，以及在构造过程    
+中如何选择的thrift为我们提供的各种模式。
