@@ -6,7 +6,7 @@
 时候系统的分层和模块化势在必行，这时候thrift就派上用场了。    
 
 thrift的使用不仅仅将各种语言黏合在我们的系统中，同时也使得系统的逻辑得以模块    
-化，可维护性更高。
+化，可维护性更高。    
 
 #### 以golang为例，看下thrift的构成和实现    
 
@@ -23,7 +23,7 @@ Accept, Close, Interrupt四个函数。
 TStreamTransport:    
 建立在io.Reader和io.Writer之上的transport，StreamTransport分为只读的，只写的和    
 读写的三种。thfit提供了StreamTransportFactory来获取实例。典型的应用是积分墙的    
-数据导出模块以及AdServer的导入协程的实现。
+数据导出模块以及AdServer的导入协程的实现。    
 
 	func (this *AdImporter) importBonusFromFile(filePath string) (bonus[]*data_shared.Bonus, err error) {
 		bonus = make([]*data_shared.Bonus, 0)
@@ -37,18 +37,18 @@ TStreamTransport:
 				err = b.Read(protocol)
 				if err != nil {
 					break
-				 }   
+				 } 
 				 bonus = append(bonus, data_shared.NewBonus(b))
-			}   
-		}   
+			} 
+		} 
 		return bonus, nil 
 	}
 
 TSocket:    
 TSocket也是实现了TTransport定义的接口，带有duck type特性的语言不易一眼就看出    
 来继承关系。TSocket读写操作都在网络连接net.Conn上进行。其实TStreamTransport    
-和TSocket才直接进行数据流读写操作，后面的两种transport都是通过组合的方式，在
-流操作的基础上做的封装。   
+和TSocket才直接进行数据流读写操作，后面的两种transport都是通过组合的方式，在    
+流操作的基础上做的封装。    
 
 TServerSocket:    
 TServerSocket是实现了TServerTransport，用来监听端口，每次获取到新的连接，交给    
@@ -87,7 +87,7 @@ processor做的就是读入数据，处理数据，再把处理的结果写出�
 传handler参数，这个handler便是我们自己写的对定义接口的实现。
 
 ##### Server层:    
-server层显然就是在server端使用，由他来负责整体的调度，协调各层的使用接口定义很简
+server层显然就是在server端使用，由他来负责整体的调度，协调各层的使用接口定义很简    
 单，只有启动的Serve()接口和Stop()接口。go版本只有一个TSimpleServer，较py简单很多，    
 依赖于go的语言优势。    
 server有6个属性，processor工厂，TServerTransport，分别负责读和写的transport，    
@@ -152,4 +152,4 @@ goroutine是构建在线程之上的概念，是由go自身来进行调度的，
 模型，当某一个协程要等待IO的时候，go会调度执行该goroutine的线程去执行其他的goroutine，    
 当IO就绪的时候，再回调激活阻塞的goroutine，调度空闲的线程来执行，这样go server的线程    
 总会选择可以执行的goroutine执行，工作就饱和了许多。不管是系统调度还是goroutine的调度，    
-一定是有资源消耗的，只是比操作系统调度线程，进程更加轻量级。
+一定是有资源消耗的，只是比操作系统调度线程，进程更加轻量级。    
