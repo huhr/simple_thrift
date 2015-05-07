@@ -1,8 +1,8 @@
 #### DESC
-	代码里是一个可运行的thrift调用的demo，运行install文件夹中的install.sh    
-脚本来编译源代码，执行bin/start.sh start, 日志里会显示调用的信息。代码中包    
-含了server和client的简单实现，可以尝试修改为不同的transport，protocol运行。    
-本文意在描述对thrift中一些的概念的理解和使用。
+代码中是一个的thrift通信的demo，运行install文件夹中的install.sh脚本来编译    
+源代码，执行bin/start.sh start, 日志里会显示调用的信息。代码中包含了server    
+和client的简单实现，可以尝试修改为不同的transport，protocol运行。本文意在    
+描述对thrift中一些的概念的理解和使用。
 
 #### 场景
 当我们在写一些较为简单的程序时，通常使用一种编程语言便可以满足我们的需求。    
@@ -60,17 +60,17 @@ TServerSocket:
 TServerSocket是实现了TServerTransport，用来监听端口，每次获取到新的连接，交给    
 上层处理。
 
-BufferedTransport:    
+TBufferedTransport:    
 增加了读写缓存，在进行IO操作时，频繁的进行read/write系统调用会消耗更多的资源，    
 使用缓存的好处在于每次进行读写操作时都能一次性的读写更多的数据，减少系统调用    
 次数，从而提升性能。
 
-FramedTransport:    
+TFramedTransport:    
 在组合TTransport的基础之上，增加了1M读写缓存的transport，这里是定义了一套自    
 己的传输协议按帧传输。每一帧的前四个byte表示这一帧包含的数据的byte数，每次先    
 读前四个byte，然后将特定大小的一帧数据读入自身的缓存中，再做处理，写的时候也    
 是先写入缓存中，Flush时计算缓存中数据长度，再发送出去。线上生产环境golang的    
-server都是使用FramedTransport来进行通信的。    
+server都是使用TFramedTransport来进行通信的。    
 
 thrift 0.9.1版本对one way的接口生成的golang代码有一个bug，server端生成的代码在处   
 理过请求之后，会继续向cilent发送处理结果，由于php的client并没有接收one way函数返    
@@ -79,7 +79,7 @@ thrift 0.9.1版本对one way的接口生成的golang代码有一个bug，server�
 
 	Error while flushing write buffer of size 58 to transport, only wrote ...
 
-这个异常便是在FramedTransport中抛出的，即server的返回值已经写到缓存里了Flush的时    
+这个异常便是在TFramedTransport中抛出的，即server的返回值已经写到缓存里了Flush的时    
 候client已经关闭socket。
 
 ##### Protocol层:
