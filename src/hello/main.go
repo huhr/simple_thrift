@@ -11,7 +11,7 @@ import (
 func main() {
 	server := server.NewServer()
 	go server.Run()
-	//time.Sleep(5)
+	time.Sleep(5)
 	fmt.Println("sleep a while")
 	client := client.NewClient()
 	go client.Run()
